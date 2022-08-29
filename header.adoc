@@ -60,7 +60,7 @@ Copyright 2022 by RISC-V International.
 [preface]
 === Contributors
 This RISC-V specification has been contributed to directly or indirectly by:
-Aaron Durbin, Allen Baum, Greg Favor, Ved Shanbhogue
+Aaron Durbin, Allen Baum, Greg Favor, Krste Asanović, Ved Shanbhogue
 
 == Introduction
 Quality-of-Service (QoS) is the minimal end-to-end performance that is
