@@ -1,7 +1,7 @@
 [[header]]
-:description: RISC-V Example Specification Document (Zexmpl)
+:description: RISC-V Quality-of-Service (QoS) Identifiers (Sqosid)
 :company: RISC-V.org
-:revdate: 1/2022
+:revdate: 8/2022
 :revnumber: 1.0
 :revremark: This document is in development. Assume everything can change. See http://riscv.org/spec-state for details.
 :url-riscv: http://riscv.org
@@ -17,9 +17,9 @@
 // needs to be changed? bug discussion started
 //:WaveDromEditorApp: app/wavedrom-editor.app
 :imagesoutdir: images
-:bibtex-file: example.bib
-:bibtex-order: alphabetical
-:bibtex-style: apa
+//:bibtex-file: example.bib
+//:bibtex-order: alphabetical
+//:bibtex-style: apa
 :icons: font
 :lang: en
 :listing-caption: Listing
@@ -36,8 +36,8 @@ endif::[]
 :footnote:
 :xrefstyle: short
 
-= RISC-V Example Specification Document (Zexmpl)
-Author 1; Author 2; RISC-V Task Group
+= RISC-V Quality-of-Service (QoS) Identifiers (Sqosid)
+Ved Shanbhogue
 
 // Preamble
 [WARNING]
@@ -58,10 +58,63 @@ https://creativecommons.org/licenses/by/4.0/.
 Copyright 2022 by RISC-V International.
 
 [preface]
-include::contributors.adoc[]
+=== Contributors
+This RISC-V specification has been contributed to directly or indirectly by:
+Aaron Durbin, Allen Baum, Greg Favor, Ved Shanbhogue
 
-include::intro.adoc[]
-include::chapter2.adoc[]
-//the index must precede the bibliography
-include::index.adoc[]
-include::bibliography.adoc[]
+== Introduction
+Quality-of-Service (QoS) is the minimal end-to-end performance that is 
+guaranteed in advance by a service level agreement (SLA) to an application. The
+performance may be measured in the form of metrics such as instructions per 
+cycle (IPC), latency of servicing work, etc.
+
+Various factors such as the available cache capacity, memory bandwidth, 
+interconnect bandwidth, CPU cycles, system memory, etc. affect the performance 
+in a computing system that runs multiple applications concurrently. Further when
+there is arbitration required for shared resources, the prioritization of the 
+applications requests against other competing requests may also affect the 
+performance of the application.
+
+When multiple applications are running concurrently on modern processors with 
+large core counts, multiple cache hierarchies, and multiple memory controllers,
+the performance of an application becomes less deterministic or even 
+non-deterministic as the performance depends on the behavior of all the other
+applications in the machine that contend for the shared resources leading to 
+interference.
+
+System software can control some of these resources available to the application
+such as the number of hardware threads made available for execution, the amount 
+of system memory allocated to the applications, the number of CPU cycles 
+provided for execution, etc. System software needs additional tools to control
+interference to an application and thereby reduce the variability in performance
+experienced by one application due to other application’s cache capacity usage,
+memory bandwidth usage, and interconnect bandwidth usage through a resource 
+allocation capability.
+
+Effective use of the resource allocation extension requires hardware to provide
+a resource monitoring capability by which the resource requirements of an 
+application needed to meet a certain performance goal can be characterized. A 
+typical use model involves profiling the resource usage of the application 
+utilizing the resource monitoring capability in order to establish or update 
+resource allocation settings for the application using the resource allocation 
+capability.
+
+Monitoring or allocation of resources requires a mechanism to identify the 
+originator of the request. The QoS Identifiers extension (Sqosid) provides a 
+mechanism to associate a hart with two identifiers - a resource control ID (`RCID`)
+and a monitoring counter ID (`MCID`) - that accompany each request made by the hart
+as the request transits through the network of resources. RCID and MCID have a 
+global scope across all caches, interconnect, and memory controllers that a 
+request may access.
+
+Shared resource controllers (e.g., cache controllers, memory controllers, etc.), that
+support QoS resource allocation capabilities, provide a mechanism to configure resource
+usage limits (e.g., cache capacity, memory bandwidth, etc.) for each `RCID`. Shared 
+resource controllers, that support QoS resource usage monitoring capabilities, implement
+a per `MCID` counter to count events such as cache occupancy, memory bandwidth, etc.
+
+The QoS identifiers extension, introduces a single read/write S/HS-mode register - `sqoscfg` - to 
+associate QoS Identifiers - `RCID` and `MCID` - with software executing on a RISC-V hart.
+
+
+include::sqosid.adoc[]
