@@ -116,10 +116,8 @@ cache occupancy, memory bandwidth, etc.
 
 The QoS identifiers extension, introduces a read/write S/HS-mode register
 - `sqoscfg` - to configure QoS Identifiers - `RCID` and `MCID` - to be used
-with requests made by the hart when not in M-mode.
-
-The QoS identifiers extension, introduces a read/write M-mode register
-- `mqoscfg` - to configure QoS Identifiers - `RCID` and `MCID` - to be used
-with requests made by the hart when in M-mode.
+with requests made by the hart when not in M-mode and a read/write M-mode 
+register - `mqoscfg` - to configure QoS Identifiers - `RCID` and `MCID` - to be
+used with requests made by the hart when in M-mode.
 
 include::sqosid.adoc[]
