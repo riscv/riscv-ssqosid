@@ -2,19 +2,15 @@
 == Quality-of-Service (QoS) Identifiers
 
 The `sqoscfg` register is a 32-bit S/HS-mode read/write register to configure a
-resource control ID (`RCID`) and a monitoring counter ID (`MCID`) to be used
-with requests made by the hart when not in M-mode.
+resource control ID (`RCID`) and a monitoring counter ID (`MCID`). The `RCID` 
+and `MCID` accompany each request made by the hart to shared resources
+such as interconnects, caches, memory, etc. `RCID` and `MCID` are WARL fields.
 
-The `mqoscfg` register is a 32-bit M-mode read/write register to configure a
-`RCID` and `MCID` to be used with requests made by the hart when in M-mode.
-
-The `RCID` and `MCID` accompany each request made by the hart to shared resources
-such as interconnects, caches, memory, etc. The `RCID` in the request is used by
-the resource controllers (e.g., cache controllers, memory controllers, etc.) to
-determine the resource allocations (e.g., cache occupancy limits, memory
-bandwidth limits, etc.) to enforce. The `MCID` in the request is used by the
-resource controllers to identify the ID of an event counter that is configured
-to count resources consumed (e.g., cache occupancy, memory bandwidth, etc.).
+The `RCID` in the request is used by the resource controllers to determine the
+resource allocations (e.g., cache occupancy limits, memory bandwidth limits,
+etc.) to enforce. The `MCID` in the request is used by the resource controllers
+to identify the ID of a counter to monitor resource usage (e.g., cache occupancy,
+memory bandwidth, etc.).
 
 .`sqoscfg` register for RV32 and RV64
 
@@ -28,25 +24,11 @@ to count resources consumed (e.g., cache occupancy, memory bandwidth, etc.).
 ], config:{lanes: 1, hspace:1024}}
 ....
 
-.`mqoscfg` register for RV32 and RV64
-
-[wavedrom, , ]
-....
-{reg: [
-  {bits: 12, name: 'RCID'},
-  {bits:  4, name: 'WPRI'},
-  {bits: 12, name: 'MCID'},
-  {bits:  4, name: 'WPRI'},
-], config:{lanes: 1, hspace:1024}}
-....
-
-`RCID` and `MCID` are WARL fields.
-
 Access to `sqoscfg` when `V=1` causes a virtual instruction exception.
 
 [NOTE]
 ====
-At reset it is suggested that the `RCID` field of `sqoscfg` and `mqoscfg` be
+At reset it is suggested that the `RCID` field of `sqoscfg` be
 set to 0 as typically the resource controllers in the SoC default to a reset
 behavior of associating all resource capacity to the `RCID` value of 0. The
 value of `MCID` at reset, unlike the `RCID`, does not affect functional
@@ -56,19 +38,51 @@ reset value.
 QoS extensions are usually statistical in nature. They are expected to enforce
 the resource allocation limits averaged over a longer period of time but may
 undershoot or overshoot in some instances. For example, a memory controller may
-determine bandwidth usage by an `RCID` averaged over a moving window to determine
-if the requester is attempting to consume more bandwidth than its allocation.
-Further the memory controller may allow the requester to exceed its allocation
-if there is spare capacity available. If there is congestion then the requester
-that is exceeding its allocation may be throttled. There may be some amount of
-hysteresis built into the algorithms used by the controller to make such
-decisions. This may lead the bandwidth made available to an `RCID` to temporarily
-overshoot or undershoot but averaged over the controllers control loop windows
-track to the configured bandwidth allocations.
+determine bandwidth usage by an `RCID` averaged over a moving window to 
+determine if the requester is attempting to consume more bandwidth than its 
+allocation. Further the memory controller may allow the requester to exceed its
+allocation if there is spare capacity available. If there is congestion then the
+requester that is exceeding its allocation may be throttled. There may be some
+amount of hysteresis built into the algorithms used by the controller to make
+such decisions. This may lead the bandwidth made available to an `RCID` to
+temporarily overshoot or undershoot but averaged over the controllers control
+loop windows track to the configured bandwidth allocations.
 
-Typically, the contents of the `sqoscfg` CSR is updated with a new `RCID` and/or 
-`MCID` by the HS/S-mode scheduler if the `RCID` and/or `MCID` of the new task/VM 
-is not same as that of the old task/VM.
+The `RCID` and `MCID` configured in the `sqoscfg` CSR apply to all privilege
+modes of software execution on that hart. Typically, the contents of the 
+`sqoscfg` CSR is updated with a new `RCID` and/or `MCID` by the HS/S-mode
+scheduler if the `RCID` and/or `MCID` of the new task/VM is not same as that of
+the old task/VM. 
+
+The `RCID` and `MCID` configured in `sqoscfg` also apply to execution in HS-mode
+but is typically not an issue. Usually, HS-mode execution occurs to provide 
+services such as through the SBI to software executing at lower privilege. Since
+the HS-mode invocation was to provide a service for the lower privilege mode,
+the HS-mode software may not modify the `sqoscfg` CSR. If a use case requires
+use of separate `RCID` and/or `MCID` for software execution in HS-mode, then
+the HS-mode SW may update the `sqoscfg` CSR and restore it prior to returning to
+the lower privilege mode execution. QoS extensions are statistical in nature and
+the small duration, such as the few instructions in the trap handler entrypoint,
+for which the HS-mode may execute with the `RCID`/`MCID` established for lower
+privilege mode operation may not be statistically significant. If such uses of
+HS-mode needing a differentiated `RCID`/`MCID` become more prevalent in future
+an extension may be used to introduce a HS-mode configuration that becomes 
+effective on a trap to HS-mode.
+
+The `RCID` and `MCID` configured in `sqoscfg` also apply to execution in M-mode
+but is typically not an issue. Usually, M-mode execution occurs to provide
+services such as through the SBI interface to software executing at lower
+privilege. Since the M-mode invocation was to provide a service for the lower
+privilege mode, the M-mode software may not modify the `sqoscfg` CSR. If a use
+case requires use of separate `RCID` and/or `MCID` for software execution in
+M-mode, then the M-mode SW may update the `sqoscfg` CSR and restore it prior to
+returning to lower privilege mode execution. QoS extensions are statistical in
+nature and the small duration, such as the few instructions in the trap handler
+entrypoint, for which the M-mode may execute with the `RCID`/`MCID` established
+for the lower privilege mode may not be statistically significant. If such uses
+of M-mode needing a differentiated `RCID`/`MCID` become more prevalent in future
+an extension may be used to introduce a M-mode configuration that becomes
+effective on a trap to M-mode.
 
 Usually for virtual machines the resource allocations are configured by the
 hypervisor. Usually the Guest OS in a virtual machine does not participate in the
