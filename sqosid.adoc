@@ -61,13 +61,44 @@ the HS-mode invocation was to provide a service for the lower privilege mode,
 the HS-mode software may not modify the `sqoscfg` CSR. If a use case requires
 use of separate `RCID` and/or `MCID` for software execution in HS-mode, then
 the HS-mode SW may update the `sqoscfg` CSR and restore it prior to returning to
-the lower privilege mode execution. QoS extensions are statistical in nature and
-the small duration, such as the few instructions in the trap handler entrypoint,
-for which the HS-mode may execute with the `RCID`/`MCID` established for lower
-privilege mode operation may not be statistically significant. If such uses of
-HS-mode needing a differentiated `RCID`/`MCID` become more prevalent in future
-an extension may be used to introduce a HS-mode configuration that becomes 
-effective on a trap to HS-mode.
+the lower privilege mode execution. 
+
+Usually for virtual machines the resource allocations are configured by the
+hypervisor. Usually the Guest OS in a virtual machine does not participate in
+the QoS flows as the Guest OS does not know the physical capabilities of the
+platform or the resource allocations for other virtual machines in the system.
+If a use case requires it, a hypervisor may virtualize the QoS capability to a
+VM by virtualizing the memory-mapped QoS register interface and using the
+virtual instruction exception on access to `sqoscfg` CSR. If the use of directly
+selecting among a set of `RCID` and/or `MCID` by a VM becomes more prevalent and
+the overhead of virtualizing the `sqoscfg` CSR using the virtual instruction
+exception is not acceptable then a future extension may be introduced where the
+`RCID`/`MCID` attempted to be written by VS mode are used as a selector for a set
+of `RCID`/`MCID` that the hypervisor configures in a set of HS mode CSRs.
+
+A Hypervisor may cause a context switch from one virtual machine to another. The
+context switch usually involves saving the context associated with the VM being
+switched away from and restoring the context of the VM being switched to. Such
+context switch may be invoked in response to an explicit call from the VM (i.e, 
+as a function of an `ECALL` invocation) or may be done asynchronously (e.g., in
+response to a timer interrupt). In such cases the hypervisor may want to execute
+with the `sqoscfg` configurations of the VM being switched away from such that
+the execution is attributed to the VM being switched from and then prior to
+executing the context switch code associated with restoring the new VMs context
+first switch to the `sqoscfg` appropriate for the new VM being switched to such
+that all of that execution is attributed to the new VM. Further in this context
+switch process, if the hypervisor intends some of the execution to be attributed
+to neither the outgoing VM nor the incoming VM, then the hypervisor may switch
+to a new configuration that is different from the configuration of either of the
+VMs for the duration of such execution.
+
+QoS extensions are statistical in nature and the small duration, such as the few
+instructions in the hypervisor trap handler entrypoint, for which the HS-mode
+may execute with the `RCID`/`MCID` established for lower privilege mode
+operation may not be statistically significant. If such uses of HS-mode needing
+a differentiated `RCID`/`MCID` become more prevalent in future an extension may
+be used to introduce a HS-mode configuration that becomes effective on a trap to
+HS-mode.
 
 The `RCID` and `MCID` configured in `sqoscfg` also apply to execution in M-mode
 but is typically not an issue. Usually, M-mode execution occurs to provide
@@ -76,26 +107,41 @@ privilege. Since the M-mode invocation was to provide a service for the lower
 privilege mode, the M-mode software may not modify the `sqoscfg` CSR. If a use
 case requires use of separate `RCID` and/or `MCID` for software execution in
 M-mode, then the M-mode SW may update the `sqoscfg` CSR and restore it prior to
-returning to lower privilege mode execution. QoS extensions are statistical in
-nature and the small duration, such as the few instructions in the trap handler
-entrypoint, for which the M-mode may execute with the `RCID`/`MCID` established
-for the lower privilege mode may not be statistically significant. If such uses
-of M-mode needing a differentiated `RCID`/`MCID` become more prevalent in future
-an extension may be used to introduce a M-mode configuration that becomes
-effective on a trap to M-mode.
+returning to lower privilege mode execution.
 
-Usually for virtual machines the resource allocations are configured by the
-hypervisor. Usually the Guest OS in a virtual machine does not participate in the
-QoS flows as the Guest OS does not know the physical capabilities of the platform or
-the resource allocations for other virtual machines in the system. If a use case
-requires it, a hypervisor may virtualize the QoS capability to a VM by virtualizing
-the memory-mapped QoS register interface and using the virtual instruction exception
-on access to `sqoscfg` CSR. If the use of directly selecting among a set of `RCID`
-and/or `MCID` by a VM becomes more prevalent and the overhead of virtualizing the
-`sqoscfg` CSR using the virtual instruction exception is not acceptable then a
-future extension may be introduced where the `RCID`/`MCID` attempted to be written by VS
-mode are used as a selector for a set of `RCID`/`MCID` that the hypervisor configures
-in a set of HS mode CSRs.
+The M-mode may be used to implement a secure monitor. Similar to the SBI in 
+M-mode providing a service to software executing at lower privilege, the M-mode
+secure monitor may provide additional security services to the security domains
+that execute at lower privilege. Since the M-mode secure monitor execution was
+invocated to provide a service to the invoking lower privilege security domain,
+the M-mode software may not modify the `sqoscfg` CSR. If a use case requires use
+of case requires use of separate `RCID` and/or `MCID` for software execution in
+M-mode security monitor, then the M-mode security monitor may update the
+`sqoscfg` CSR and restore it prior to returning to lower privilege mode
+execution in the invoking security domain. M-mode secure monitor may also cause
+a context switch from one security domain to another security domain. The context
+switch usually involves saving the context associated with the domain being
+switched away from and restoring the context of the domain being switched to.
+Such context switch may be invoked in response to an explicit call from the
+security domain (i.e, as a function of an `ECALL` invocation) or may be done
+asynchronously (e.g., in response to a timer interrupt). In such cases the
+M-mode secure monitor may want to execute with the `sqoscfg` configurations of
+the domain being switched away from such that the execution is attributed to the
+domain being switched from and then prior to executing the context switch code
+associated with restoring the new domains context first switch to the `sqoscfg`
+appropriate for the new domain being switched to such that all of that execution
+is attributed to the new domain. Further in this context switch process, if the
+M-mode secure monitor intends some of the execution to be attributed to neither
+the outgoing domain nor the incoming domain, then the M-mode secure monitor may
+switch to a new configuration that is different from the configuration for either
+of the domains for that duration of such execution.
+
+QoS extensions are statistical in nature and the small duration, such as the
+few instructions in the trap handler entrypoint, for which the M-mode may 
+execute with the `RCID`/`MCID` established for the lower privilege mode may not
+be statistically significant. If such uses of M-mode needing a differentiated 
+`RCID`/`MCID` become more prevalent in future an extension may be used to 
+introduce a M-mode configuration that becomes effective on a trap to M-mode.
 
 In a typical implementation the number of `RCID` bits implemented may be smaller than
 the number of `MCID` bits implemented. It is a typical usage to associate a group of 
