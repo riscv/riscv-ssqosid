@@ -1,16 +1,26 @@
 [[chapter2]]
 == Quality-of-Service (QoS) Identifiers
 
-The `sqoscfg` register is a 32-bit S/HS-mode read/write register to configure a
+The `sqoscfg` CSR is a 32-bit S/HS-mode read/write register to configure a
 resource control ID (`RCID`) and a monitoring counter ID (`MCID`). The `RCID` 
-and `MCID` accompany each request made by the hart to shared resources
-such as interconnects, caches, memory, etc. `RCID` and `MCID` are WARL fields.
+and `MCID` accompany each request made by the hart to shared resources such 
+as interconnects, caches, memory, etc. `RCID` and `MCID` are WARL fields.
 
 The `RCID` in the request is used by the resource controllers to determine the
 resource allocations (e.g., cache occupancy limits, memory bandwidth limits,
 etc.) to enforce. The `MCID` in the request is used by the resource controllers
 to identify the ID of a counter to monitor resource usage (e.g., cache occupancy,
 memory bandwidth, etc.).
+
+[NOTE]
+====
+The type of request made to the shared resource controller depends on the type
+of shared resource. In case of resources such as caches or memory these may be
+a memory access request. In case of resources such as CPU dispatch slots and
+retirement bandwidth the request may be to allocate such resources for execution.
+In case of shared power rails the request may be for consuming current for
+executing operations on the hart.
+====
 
 .`sqoscfg` register for RV32 and RV64
 
@@ -26,14 +36,16 @@ memory bandwidth, etc.).
 
 Access to `sqoscfg` when `V=1` causes a virtual instruction exception.
 
+The CSR number is TBD.
+
 [NOTE]
 ====
-At reset it is suggested that the `RCID` field of `sqoscfg` be
-set to 0 as typically the resource controllers in the SoC default to a reset
-behavior of associating all resource capacity to the `RCID` value of 0. The
-value of `MCID` at reset, unlike the `RCID`, does not affect functional
-behavior. Implementation may choose a convenient legal value for the `MCID`
-reset value.
+At reset it is suggested that the `RCID` field of `sqoscfg` be set to 0 as 
+typically the resource controllers in the SoC default to a reset behavior 
+of associating all resource capacity to the `RCID` value of 0. The value 
+of `MCID` at reset, unlike the `RCID`, does not affect functional behavior.
+Implementations may choose a convenient legal value for the `MCID` reset 
+value.
 
 QoS extensions are usually statistical in nature. They are expected to enforce
 the resource allocation limits averaged over a longer period of time but may
@@ -51,8 +63,8 @@ loop windows track to the configured bandwidth allocations.
 The `RCID` and `MCID` configured in the `sqoscfg` CSR apply to all privilege
 modes of software execution on that hart. Typically, the contents of the 
 `sqoscfg` CSR is updated with a new `RCID` and/or `MCID` by the HS/S-mode
-scheduler if the `RCID` and/or `MCID` of the new task/VM is not same as that of
-the old task/VM. 
+scheduler if the `RCID` and/or `MCID` of the new process/VM is not same as that
+of the old process/VM. 
 
 The `RCID` and `MCID` configured in `sqoscfg` also apply to execution in HS-mode
 but is typically not an issue. Usually, HS-mode execution occurs to provide 
@@ -105,7 +117,7 @@ but is typically not an issue. Usually, M-mode execution occurs to provide
 services such as through the SBI interface to software executing at lower
 privilege. Since the M-mode invocation was to provide a service for the lower
 privilege mode, the M-mode software may not modify the `sqoscfg` CSR. If a use
-case requires use of separate `RCID` and/or `MCID` for software execution in
+case requires use of a separate `RCID` and/or `MCID` for software execution in
 M-mode, then the M-mode SW may update the `sqoscfg` CSR and restore it prior to
 returning to lower privilege mode execution.
 
@@ -115,26 +127,26 @@ secure monitor may provide additional security services to the security domains
 that execute at lower privilege. Since the M-mode secure monitor execution was
 invocated to provide a service to the invoking lower privilege security domain,
 the M-mode software may not modify the `sqoscfg` CSR. If a use case requires use
-of case requires use of separate `RCID` and/or `MCID` for software execution in
-M-mode security monitor, then the M-mode security monitor may update the
-`sqoscfg` CSR and restore it prior to returning to lower privilege mode
-execution in the invoking security domain. M-mode secure monitor may also cause
-a context switch from one security domain to another security domain. The context
-switch usually involves saving the context associated with the domain being
-switched away from and restoring the context of the domain being switched to.
-Such context switch may be invoked in response to an explicit call from the
-security domain (i.e, as a function of an `ECALL` invocation) or may be done
-asynchronously (e.g., in response to a timer interrupt). In such cases the
-M-mode secure monitor may want to execute with the `sqoscfg` configurations of
-the domain being switched away from such that the execution is attributed to the
-domain being switched from and then prior to executing the context switch code
-associated with restoring the new domains context first switch to the `sqoscfg`
-appropriate for the new domain being switched to such that all of that execution
-is attributed to the new domain. Further in this context switch process, if the
-M-mode secure monitor intends some of the execution to be attributed to neither
-the outgoing domain nor the incoming domain, then the M-mode secure monitor may
-switch to a new configuration that is different from the configuration for either
-of the domains for that duration of such execution.
+of a separate `RCID` and/or `MCID` for software execution in M-mode security 
+monitor, then the M-mode security monitor may update the `sqoscfg` CSR and 
+restore it prior to returning to lower privilege mode execution in the invoking
+security domain. M-mode secure monitor may also cause a context switch from one
+security domain to another security domain. The context switch usually involves
+saving the context associated with the domain being switched away from and
+restoring the context of the domain being switched to. Such context switch may
+be invoked in response to an explicit call from the security domain (i.e, as a
+function of an `ECALL` invocation) or may be done asynchronously (e.g., in
+response to a timer interrupt). In such cases the M-mode secure monitor may want
+to execute with the `sqoscfg` configurations of the domain being switched away
+from such that the execution is attributed to the domain being switched from and
+then prior to executing the context switch code associated with restoring the
+new domains context first switch to the `sqoscfg` appropriate for the new domain
+being switched to such that all of that execution is attributed to the new
+domain. Further in this context switch process, if the M-mode secure monitor
+intends some of the execution to be attributed to neither the outgoing domain
+nor the incoming domain, then the M-mode secure monitor may switch to a new
+configuration that is different from the configuration for either of the domains
+for that duration of such execution.
 
 QoS extensions are statistical in nature and the small duration, such as the
 few instructions in the trap handler entrypoint, for which the M-mode may 
@@ -143,16 +155,18 @@ be statistically significant. If such uses of M-mode needing a differentiated
 `RCID`/`MCID` become more prevalent in future an extension may be used to 
 introduce a M-mode configuration that becomes effective on a trap to M-mode.
 
-In a typical implementation the number of `RCID` bits implemented may be smaller than
-the number of `MCID` bits implemented. It is a typical usage to associate a group of 
-applications/VMs with a common `RCID`. The group being associated with a common `RCID`
-thus shares a common pool of resource allocations. The resource allocation for the
-`RCID` is established to meet the SLA objectives of all members of the group. If SLA
-objectives of one or more members of the group stop being met, the resource usage of
-one or more members of the group may be monitored by associating them with a unique
-`MCID` and this iterative analysis process use to determine the optimal strategy -
-increasing resources allocated to the `RCID`, moving some members to a different
-`RCID`, migrating some members away to another machine, etc. - for restoring the SLA.
-Having a sufficiently large pool of `MCID` speeds up this analysis. The usage motivates
-separate IDs for allocation and monitoring.
+In a typical implementation the number of `RCID` bits (e.g., to support 10s of
+`RCID`s) implemented may be smaller than the number of `MCID` bits (e.g., to 
+support 100s of `MCID`s) implemented. It is a typical usage to associate a group
+of applications/VMs with a common `RCID`. The group being associated with a
+common `RCID` thus shares a common pool of resource allocations. The resource
+allocation for the `RCID` is established to meet the SLA objectives of all
+members of the group. If SLA objectives of one or more members of the group stop
+being met, the resource usage of one or more members of the group may be
+monitored by associating them with a unique `MCID` and this iterative analysis
+process use to determine the optimal strategy - increasing resources allocated
+to the `RCID`, moving some members to a different `RCID`, migrating some members
+away to another machine, etc. - for restoring the SLA. Having a sufficiently
+large pool of `MCID` speeds up this analysis. The usage motivates separate IDs
+for allocation and monitoring.
 ====
