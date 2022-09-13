@@ -36,7 +36,7 @@ endif::[]
 :footnote:
 :xrefstyle: short
 
-= RISC-V Quality-of-Service (QoS) Identifiers
+= RISC-V Quality-of-Service (QoS) Identifiers (Sqosid)
 Ved Shanbhogue
 
 // Preamble
