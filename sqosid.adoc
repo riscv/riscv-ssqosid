@@ -60,6 +60,24 @@ Implementations may choose a convenient legal value for the `MCID` reset
 value.
 ====
 
+[NOTE]
+====
+In a typical implementation the number of `RCID` bits implemented (e.g., to 
+support 10s of `RCIDs`) may be smaller than the number of `MCID` bits 
+implemented (e.g., to support 100s of `MCIDs`). It is a typical usage to 
+associate a group of applications/VMs with a common `RCID`. The group being
+associated with a common `RCID` thus shares a common pool of resource
+allocations. The resource allocation for the `RCID` is established to meet the
+SLA objectives of all members of the group. If SLA objectives of one or more
+members of the group stop being met, the resource usage of one or more members
+of the group may be monitored by associating them with a unique `MCID` and this
+iterative analysis process use to determine the optimal strategy - increasing
+resources allocated to the `RCID`, moving some members to a different `RCID`,
+migrating some members away to another machine, etc. - for restoring the SLA.
+Having a sufficiently large pool of `MCID` speeds up this analysis. The usage
+motivates separate IDs for allocation and monitoring.
+====
+
 The CSR number is TBD.
 
 The `RCID` and `MCID` configured in the `sqoscfg` CSR apply to all privilege
@@ -172,20 +190,3 @@ be statistically significant. If such uses of M-mode needing a differentiated
 introduce a M-mode configuration that becomes effective on a trap to M-mode.
 ====
 
-[NOTE]
-====
-In a typical implementation the number of `RCID` bits implemented (e.g., to 
-support 10s of `RCIDs`) may be smaller than the number of `MCID` bits 
-implemented (e.g., to support 100s of `MCIDs`). It is a typical usage to 
-associate a group of applications/VMs with a common `RCID`. The group being
-associated with a common `RCID` thus shares a common pool of resource
-allocations. The resource allocation for the `RCID` is established to meet the
-SLA objectives of all members of the group. If SLA objectives of one or more
-members of the group stop being met, the resource usage of one or more members
-of the group may be monitored by associating them with a unique `MCID` and this
-iterative analysis process use to determine the optimal strategy - increasing
-resources allocated to the `RCID`, moving some members to a different `RCID`,
-migrating some members away to another machine, etc. - for restoring the SLA.
-Having a sufficiently large pool of `MCID` speeds up this analysis. The usage
-motivates separate IDs for allocation and monitoring.
-====
