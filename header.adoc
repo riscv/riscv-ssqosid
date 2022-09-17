@@ -1,5 +1,5 @@
 [[header]]
-:description: RISC-V Quality-of-Service (QoS) Identifiers (Sqosid)
+:description: RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
 :company: RISC-V.org
 :revdate: 8/2022
 :revnumber: 1.0
@@ -36,7 +36,7 @@ endif::[]
 :footnote:
 :xrefstyle: short
 
-= RISC-V Quality-of-Service (QoS) Identifiers (Sqosid)
+= RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
 Ved Shanbhogue
 
 // Preamble
@@ -100,7 +100,7 @@ resource allocation settings for the application using the resource allocation
 capability.
 
 Monitoring or allocation of resources requires a mechanism to identify the
-originator of the request. The QoS Identifiers extension (Sqosid) provides a
+originator of the request. The QoS Identifiers extension (Ssqosid) provides a
 mechanism to configure a hart with two identifiers - a resource control ID
 (`RCID`) and a monitoring counter ID (`MCID`) - that accompany each request
 made by the hart as the request transits through the network of resources.
@@ -114,7 +114,7 @@ for each `RCID`. Shared resource controllers, that support QoS resource usage
 monitoring capabilities, implement a per `MCID` counter to count events such as
 cache occupancy, memory bandwidth, etc.
 
-The Sqosid extension, introduces a read/write S/HS-mode register - `sqoscfg` - 
+The Ssqosid extension, introduces a read/write S/HS-mode register - `sqoscfg` - 
 to configure QoS Identifiers - `RCID` and `MCID` - to be used with requests 
 made by the hart to shared resources. In the future, other QoS-related 
 configuration fields may also be added to this CSR.
