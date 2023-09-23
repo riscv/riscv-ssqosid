@@ -1,7 +1,7 @@
 [[header]]
 :description: RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
 :company: RISC-V.org
-:revdate: 8/2022
+:revdate: 9/2023
 :revnumber: 1.0
 :revremark: This document is in development. Assume everything can change. See http://riscv.org/spec-state for details.
 :url-riscv: http://riscv.org
@@ -55,7 +55,7 @@ Attribution 4.0 International License (CC-BY 4.0). The full
 license text is available at
 https://creativecommons.org/licenses/by/4.0/.
 
-Copyright 2022 by RISC-V International.
+Copyright 2023 by RISC-V International.
 
 [preface]
 === Contributors
@@ -63,41 +63,55 @@ This RISC-V specification has been contributed to directly or indirectly by:
 Aaron Durbin, Allen Baum, Greg Favor, Krste Asanović, Ved Shanbhogue
 
 == Introduction
-Quality-of-Service (QoS) is the minimal end-to-end performance that is
-guaranteed in advance by a service level agreement (SLA) to an application. The
-performance may be measured in the form of metrics such as instructions per
-cycle (IPC), latency of servicing work, etc.
+Quality of Service (QoS) is defined as the minimal end-to-end performance that
+is guaranteed in advance by a service level agreement (SLA) to a workload. A
+workload may be a single application, a group of application, a virtual machine,
+a group of virtual machines, or a combination of those. The performance may
+be measured in the form of metrics such as instructions per cycle (IPC), latency
+of servicing work, etc.
 
 Various factors such as the available cache capacity, memory bandwidth,
 interconnect bandwidth, CPU cycles, system memory, etc. affect the performance
-in a computing system that runs multiple applications concurrently. Further when
-there is arbitration required for shared resources, the prioritization of the
-applications requests against other competing requests may also affect the
-performance of the application.
+in a computing system that runs multiple workloads concurrently. Furthermore,
+when there is arbitration for shared resources, the prioritization of the
+workloads requests against other competing requests may also affect the
+performance of the workload. Such interference due to resource sharing may lead
+to unpredictable workload performance cite:[PTCAMP].
 
-When multiple applications are running concurrently on modern processors with
-large core counts, multiple cache hierarchies, and multiple memory controllers,
-the performance of an application becomes less deterministic or even
-non-deterministic as the performance depends on the behavior of all the other
-applications in the machine that contend for the shared resources leading to
-interference.
+When multiple workloads are running concurrently on modern processors with large
+core counts, multiple cache hierarchies, and multiple memory controllers, the
+performance of a workload becomes less deterministic or even non-deterministic.
+This is because the performance depends on the behavior of all the other
+workloads in the machine that contend for the shared resources leading to
+interference. In many deployment scenarios such as public cloud servers the
+workload owner may not be in control of the type and placement of other
+workloads in the platform.
 
-System software can control some of these resources available to the application
+System software can control some of these resources available to the workload,
 such as the number of hardware threads made available for execution, the amount
-of system memory allocated to the applications, the number of CPU cycles
-provided for execution, etc. System software needs additional tools to control
-interference to an application and thereby reduce the variability in performance
-experienced by one application due to other application’s cache capacity usage,
-memory bandwidth usage, and interconnect bandwidth usage through a resource
-allocation capability.
+of system memory allocated to the workload, the number of CPU cycles provided
+for execution, etc.
 
-Effective use of the resource allocation extension requires hardware to provide
-a resource monitoring capability by which the resource requirements of an
-application needed to meet a certain performance goal can be characterized. A
-typical use model involves profiling the resource usage of the application
-utilizing the resource monitoring capability in order to establish or update
-resource allocation settings for the application using the resource allocation
-capability.
+System software needs additional tools to control interference to a workload
+and thereby reduce the variability in performance experienced by one workload
+due to other workload’s cache capacity usage, memory bandwidth usage,
+interconnect bandwidth usage, etc. through a resource allocation capability. The
+resource allocation capability enables system software to reserve capacity
+and/or bandwidth to meet the performance goals of the workload. Such controls
+enable improving the utilization of the system by collocating workloads while
+minimizing the interference caused by one workload to another cite:[HERACLES].
+
+Effective use of the resource allocation capability requires hardware to provide
+a resource monitoring capability by which the resource requirements of a
+workload needed to meet a certain performance goal can be characterized. A
+typical use model involves profiling the resource usage of the workload using
+the resource monitoring capability and to establish resource allocations for the
+workload using the resource allocation capability.
+
+The allocation may be in the form of capacity or bandwidth depending on the type
+of resource. For caches, TLBs, and directories, the resource allocation is in
+the form of storage capacity. For interconnects and memory controllers the
+resource allocation is in the form of bandwidth.
 
 Monitoring or allocation of resources requires a mechanism to identify the
 originator of the request. The QoS Identifiers extension (Ssqosid) provides a
@@ -108,11 +122,12 @@ made by the hart as the request transits through the network of resources.
 memory controllers that a request may access.
 
 Shared resource controllers (e.g., cache controllers, memory controllers, etc.),
-that support QoS resource allocation capabilities, provide a mechanism to 
-configure resource usage limits (e.g., cache capacity, memory bandwidth, etc.)
-for each `RCID`. Shared resource controllers, that support QoS resource usage
-monitoring capabilities, implement a per `MCID` counter to count events such as
-cache occupancy, memory bandwidth, etc.
+that support the proposed RISC-V Capacity and Bandwidth Controller QoS Register
+Interface specification cite:[CBQRI], provide a mechanism to configure resource
+usage limits (e.g., cache capacity, memory bandwidth, etc.) for each `RCID`.
+Shared resource controllers, that support QoS resource usage monitoring
+capabilities, implement a per `MCID` counter to count events such as cache
+occupancy, memory bandwidth, etc.
 
 The Ssqosid extension, introduces a read/write S/HS-mode register - `sqoscfg` - 
 to configure QoS Identifiers - `RCID` and `MCID` - to be used with requests 
