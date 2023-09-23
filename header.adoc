@@ -17,9 +17,9 @@
 // needs to be changed? bug discussion started
 //:WaveDromEditorApp: app/wavedrom-editor.app
 :imagesoutdir: images
-//:bibtex-file: example.bib
-//:bibtex-order: alphabetical
-//:bibtex-style: apa
+:bibtex-file: sqosid.bib
+:bibtex-order: occurrence
+:bibtex-style: ieee
 :icons: font
 :lang: en
 :listing-caption: Listing
@@ -135,3 +135,5 @@ made by the hart to shared resources. In the future, other QoS-related
 configuration fields may also be added to this CSR.
 
 include::sqosid.adoc[]
+//the index must precede the bibliography
+include::sqosid_biblio.adoc[]
