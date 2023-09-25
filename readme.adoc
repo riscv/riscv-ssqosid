@@ -1,7 +1,8 @@
-= RISC-V docs-spec-template
+= RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
 
-This repository is used to prime GitHub repos for the RISC-V organization which will be used
-to create specifications.
+The QoS Identifiers extension (Ssqosid) introduces the `sqoscfg` register, which configures
+a hart with two identifiers: a Resource Control ID (`RCID`) and a Monitoring Counter ID (`MCID`).
+These identifiers accompany each request issued by the hart to shared resource controllers.
 
 **If you are reading this in a specification repo, please update the title for this section and
 provide your introduction to your repository.**
