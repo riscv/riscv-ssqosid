@@ -10,7 +10,7 @@
 :colophon:
 :appendix-caption: Appendix
 :imagesdir: images
-:title-logo-image: image:risc-v_logo.svg[pdfwidth=3.25in,align=center]
+:title-logo-image: image:risc-v_logo.png[pdfwidth=3.25in,align=center]
 // Settings:
 :experimental:
 :reproducible:
@@ -84,6 +84,13 @@ To facilitate this, the QoS Identifiers extension (Ssqosid) introduces the
 `sqoscfg` register, which configures a hart with two identifiers: a Resource
 Control ID (`RCID`) and a Monitoring Counter ID (`MCID`). These identifiers
 accompany each request issued by the hart to shared resource controllers.
+
+Additional metadata, like the nature of the memory access and the ID of the
+originating supervisor domain, can accompany `RCID` and `MCID`. Resource
+controllers may use this metadata for differentiated service such as a different
+capacity allocation for code storage vs. data storage. Resource controllers can
+use this data for security policies not exposing statistics of one security
+domain to another.
 
 These identifiers are crucial for the proposed RISC-V Capacity and Bandwidth
 Controller QoS Register Interface cite:[CBQRI], which provides methods for

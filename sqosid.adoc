@@ -3,19 +3,12 @@
 
 The `sqoscfg` register is a 32-bit read/write register to configure a
 Resource Control ID (`RCID`) and a Monitoring Counter ID (`MCID`). Both
-`RCID` and `MCID` are WARL fields.
+`RCID` and `MCID` are WARL fields. The CSR number is TBD.
 
 The `RCID` and `MCID` accompany each request made by the hart to shared
 resource controllers. The `RCID` is used to determine the resource
 allocations (e.g., cache occupancy limits, memory bandwidth limits, etc.) to
 enforce. The `MCID` is used to identify a counter to monitor resource usage.
-
-[NOTE]
-====
-Additional metadata, like the nature of the memory access or the ID of the
-originating supervisor domain, can accompany RCID and MCID. Resource controllers
-may use this metadata for differentiated service and/or security policies.
-====
 
 .`sqoscfg` register for RV32 and RV64
 
@@ -29,14 +22,15 @@ may use this metadata for differentiated service and/or security policies.
 ], config:{lanes: 1, hspace:1024}}
 ....
 
-The CSR number is TBD.
+The `RCID` and `MCID` configured in the `sqoscfg` CSR apply to all privilege
+modes cite:[PRIV] of software execution on that hart. 
 
 [NOTE]
 ====
-A reset value of 0 is suggested for `RCID` field matching resource controllers'
-default behavior of associating all capacity with `RCID=0`. The `MCID` reset
-value does not affect functionality and thus may be freely chosen by the
-implementation.
+A reset value of 0 is suggested for the `RCID` field matching resource
+controllers' default behavior of associating all capacity with `RCID=0`. The
+`MCID` reset value does not affect functionality and may be
+implementation-defined.
 
 Typically, fewer bits are allocated for `RCID` (e.g., to support tens of RCIDs)
 than for `MCID` (e.g., to support hundreds of MCIDs). A common `RCID` is usually
@@ -45,27 +39,12 @@ If an SLA breach occurs, unique MCIDs enable granular monitoring, aiding
 decisions on resource adjustment, associating a different `RCID` with a subset
 of members, or migrating members to other machines. The larger pool of MCIDs
 speeds up this analysis.
-====
 
-The `RCID` and `MCID` configured in the `sqoscfg` CSR apply to all privilege
-modes cite:[PRIV] of software execution on that hart. 
-
-[NOTE]
-====
 The `RCID` and `MCID` in `sqoscfg` apply across all privilege levels on the hart.
-Typically, higher privilege modes don't modify `sqoscfg`, as they often serve
+Typically, higher-privilege modes don't modify `sqoscfg`, as they often serve
 lower-privileged tasks. If differentiation is needed, higher privilege code can
 update `sqoscfg` and restore it before returning to a lower privilege level.
 
-Additional metadata like supervisor-domain-IDs may accompany hart requests.
-Resource controllers can use this data for security policies not exposing
-statistics of one security-domain to another.
-====
-
-Access to `sqoscfg` when `V=1` causes a virtual-instruction exception.
-
-[NOTE]
-====
 In VM environments, hypervisors usually manage resource allocations, keeping the
 Guest OS out of QoS flows. If needed, the hypervisor can virtualize QoS for a VM
 via the memory-mapped register interface, throwing a virtual-instruction
@@ -73,8 +52,9 @@ exception for `sqoscfg` CSR access. If direct VM selection of `RCID`/`MCID`
 becomes common and virtualization overhead is an issue, future extensions may
 allow VS-mode to act as a selector for a hypervisor-configured set of CSRs.
 
-During VM context switches, the hypervisor may choose to execute with the
-`sqoscfg` of the outgoing VM to attribute the execution to it. Prior to restoring
-the new VM, it switches to the new VM's `sqoscfg`. The hypervisor can also use a
-separate configuration for execution not to be attributed to either VM.
+During context switches, the supervisor may choose to execute with the `sqoscfg`
+of the outgoing context to attribute the execution to it. Prior to restoring
+the new context, it switches to the new VM's `sqoscfg`. The supervisor can also
+use a separate configuration for execution not to be attributed to either
+contexts.
 ====
