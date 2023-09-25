@@ -10,7 +10,7 @@
 :colophon:
 :appendix-caption: Appendix
 :imagesdir: images
-:title-logo-image: image:risc-v_logo.png[pdfwidth=3.25in,align=center]
+:title-logo-image: image:risc-v_logo.svg[pdfwidth=3.25in,align=center]
 // Settings:
 :experimental:
 :reproducible:
@@ -49,7 +49,7 @@ specification will likely not conform to the future standard.
 ====
 
 [preface]
-== Copyright and license information
+=== Copyright and license information
 This specification is licensed under the Creative Commons
 Attribution 4.0 International License (CC-BY 4.0). The full
 license text is available at
@@ -63,76 +63,33 @@ This RISC-V specification has been contributed to directly or indirectly by:
 Aaron Durbin, Allen Baum, Greg Favor, Krste Asanović, Ved Shanbhogue
 
 == Introduction
-Quality of Service (QoS) is defined as the minimal end-to-end performance that
-is guaranteed in advance by a service level agreement (SLA) to a workload. A
-workload may be a single application, a group of application, a virtual machine,
-a group of virtual machines, or a combination of those. The performance may
-be measured in the form of metrics such as instructions per cycle (IPC), latency
-of servicing work, etc.
+Quality of Service (QoS) is defined as the minimal end-to-end performance
+guaranteed in advance by a service level agreement (SLA) to a workload.
+Performance metrics might include measures such as instructions per cycle (IPC),
+latency of service, etc.
 
-Various factors such as the available cache capacity, memory bandwidth,
-interconnect bandwidth, CPU cycles, system memory, etc. affect the performance
-in a computing system that runs multiple workloads concurrently. Furthermore,
-when there is arbitration for shared resources, the prioritization of the
-workloads requests against other competing requests may also affect the
-performance of the workload. Such interference due to resource sharing may lead
-to unpredictable workload performance cite:[PTCAMP].
+When multiple workloads execute concurrently on modern processors—equipped with
+large core counts, multiple cache hierarchies, and multiple memory
+controllers—the performance of any given workload becomes less deterministic, or
+even non-deterministic, due to shared resource contention cite:[PTCAMP].
 
-When multiple workloads are running concurrently on modern processors with large
-core counts, multiple cache hierarchies, and multiple memory controllers, the
-performance of a workload becomes less deterministic or even non-deterministic.
-This is because the performance depends on the behavior of all the other
-workloads in the machine that contend for the shared resources leading to
-interference. In many deployment scenarios such as public cloud servers the
-workload owner may not be in control of the type and placement of other
-workloads in the platform.
+To manage performance variability, system software needs resource allocation and
+monitoring capabilities. These capabilities allow for the reservation of
+resources like cache and bandwidth, thus meeting individual performance targets
+while minimizing interference cite:[HERACLES]. For resource management, hardware
+should provide monitoring features that allow system software to profile
+workload resource consumption and allocate resources accordingly.
 
-System software can control some of these resources available to the workload,
-such as the number of hardware threads made available for execution, the amount
-of system memory allocated to the workload, the number of CPU cycles provided
-for execution, etc.
+To facilitate this, the QoS Identifiers extension (Ssqosid) introduces the
+`sqoscfg` register, which configures a hart with two identifiers: a Resource
+Control ID (`RCID`) and a Monitoring Counter ID (`MCID`). These identifiers
+accompany each request issued by the hart to shared resource controllers.
 
-System software needs additional tools to control interference to a workload
-and thereby reduce the variability in performance experienced by one workload
-due to other workload’s cache capacity usage, memory bandwidth usage,
-interconnect bandwidth usage, etc. through a resource allocation capability. The
-resource allocation capability enables system software to reserve capacity
-and/or bandwidth to meet the performance goals of the workload. Such controls
-enable improving the utilization of the system by collocating workloads while
-minimizing the interference caused by one workload to another cite:[HERACLES].
-
-Effective use of the resource allocation capability requires hardware to provide
-a resource monitoring capability by which the resource requirements of a
-workload needed to meet a certain performance goal can be characterized. A
-typical use model involves profiling the resource usage of the workload using
-the resource monitoring capability and to establish resource allocations for the
-workload using the resource allocation capability.
-
-The allocation may be in the form of capacity or bandwidth depending on the type
-of resource. For caches, TLBs, and directories, the resource allocation is in
-the form of storage capacity. For interconnects and memory controllers the
-resource allocation is in the form of bandwidth.
-
-Monitoring or allocation of resources requires a mechanism to identify the
-originator of the request. The QoS Identifiers extension (Ssqosid) provides a
-mechanism to configure a hart with two identifiers - a resource control ID
-(`RCID`) and a monitoring counter ID (`MCID`) - that accompany each request
-made by the hart as the request transits through the network of resources.
-`RCID` and `MCID` have a global scope across all caches, interconnect, and
-memory controllers that a request may access.
-
-Shared resource controllers (e.g., cache controllers, memory controllers, etc.),
-that support the proposed RISC-V Capacity and Bandwidth Controller QoS Register
-Interface specification cite:[CBQRI], provide a mechanism to configure resource
-usage limits (e.g., cache capacity, memory bandwidth, etc.) for each `RCID`.
-Shared resource controllers, that support QoS resource usage monitoring
-capabilities, implement a per `MCID` counter to count events such as cache
-occupancy, memory bandwidth, etc.
-
-The Ssqosid extension, introduces a read/write S/HS-mode register - `sqoscfg` - 
-to configure QoS Identifiers - `RCID` and `MCID` - to be used with requests 
-made by the hart to shared resources. In the future, other QoS-related 
-configuration fields may also be added to this CSR.
+These identifiers are crucial for the proposed RISC-V Capacity and Bandwidth
+Controller QoS Register Interface cite:[CBQRI], which provides methods for
+setting resource usage limits and monitoring resource consumption. The `RCID`
+controls resource allocations, while the `MCID` is used for tracking resource
+usage.
 
 include::sqosid.adoc[]
 //the index must precede the bibliography
