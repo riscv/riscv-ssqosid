@@ -13,9 +13,8 @@ enforce. The `MCID` is used to identify a counter to monitor resource usage.
 [NOTE]
 ====
 Additional metadata, like the nature of the memory access or the ID of the
-originating supervisor domain, can accompany RCID and MCID. Shared resource
-controllers may use this metadata for differentiated service and/or security
-policies.
+originating supervisor domain, can accompany RCID and MCID. Resource controllers
+may use this metadata for differentiated service and/or security policies.
 ====
 
 .`sqoscfg` register for RV32 and RV64
@@ -44,8 +43,8 @@ than for `MCID` (e.g., to support hundreds of MCIDs). A common `RCID` is usually
 used to group apps or VMs, pooling resource allocations to meet collective SLAs.
 If an SLA breach occurs, unique MCIDs enable granular monitoring, aiding
 decisions on resource adjustment, associating a different `RCID` with a subset
-of members, or migrating some of the members to other machines. The larger pool
-of MCIDs speeds up this analysis.
+of members, or migrating members to other machines. The larger pool of MCIDs
+speeds up this analysis.
 ====
 
 The `RCID` and `MCID` configured in the `sqoscfg` CSR apply to all privilege
@@ -57,10 +56,6 @@ The `RCID` and `MCID` in `sqoscfg` apply across all privilege levels on the hart
 Typically, higher privilege modes don't modify `sqoscfg`, as they often serve
 lower-privileged tasks. If differentiation is needed, higher privilege code can
 update `sqoscfg` and restore it before returning to a lower privilege level.
-
-In cases where a unique `RCID`/`MCID` is increasingly required for higher
-privilege modes, a future extension may introduce specific M-mode or HS-mode
-settings activated upon a trap.
 
 Additional metadata like supervisor-domain-IDs may accompany hart requests.
 Resource controllers can use this data for security policies not exposing
