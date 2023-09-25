@@ -4,9 +4,6 @@ The QoS Identifiers extension (Ssqosid) introduces the `sqoscfg` register, which
 a hart with two identifiers: a Resource Control ID (`RCID`) and a Monitoring Counter ID (`MCID`).
 These identifiers accompany each request issued by the hart to shared resource controllers.
 
-**If you are reading this in a specification repo, please update the title for this section and
-provide your introduction to your repository.**
-
 = License
 
 This work is licensed under a Creative Commons Attribution 4.0 International License (CC-BY-4.0).
