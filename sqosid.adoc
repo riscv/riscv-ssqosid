@@ -45,12 +45,13 @@ Typically, higher-privilege modes don't modify `sqoscfg`, as they often serve
 lower-privileged tasks. If differentiation is needed, higher privilege code can
 update `sqoscfg` and restore it before returning to a lower privilege level.
 
-In VM environments, hypervisors usually manage resource allocations, keeping the
-Guest OS out of QoS flows. If needed, the hypervisor can virtualize QoS for a VM
-via the memory-mapped register interface, throwing a virtual-instruction
-exception for `sqoscfg` CSR access. If direct VM selection of `RCID`/`MCID`
-becomes common and virtualization overhead is an issue, future extensions may
-allow VS-mode to act as a selector for a hypervisor-configured set of CSRs.
+In VM environments, hypervisors usually manage resource allocations, keeping
+the Guest OS out of QoS flows. If needed, the hypervisor can virtualize
+`sqoscfg` CSR for a VM using the virtual-instruction exceptions triggered upon
+Guest access. If the direct selection of `RCID` and `MCID` by the VM becomes
+common and emulation overhead is an issue, future extensions may allow VS-mode
+to use a selector for a hypervisor-configured set of CSRs holding `RCID` and
+`MCID` values designated for that Guest OS use.
 
 During context switches, the supervisor may choose to execute with the `sqoscfg`
 of the outgoing context to attribute the execution to it. Prior to restoring
