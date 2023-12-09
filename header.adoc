@@ -1,7 +1,7 @@
 [[header]]
 :description: RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
 :company: RISC-V.org
-:revdate: 9/2023
+:revdate: 12/2023
 :revnumber: 1.0
 :revremark: This document is in development. Assume everything can change. See http://riscv.org/spec-state for details.
 :url-riscv: http://riscv.org
@@ -81,7 +81,7 @@ should provide monitoring features that allow system software to profile
 workload resource consumption and allocate resources accordingly.
 
 To facilitate this, the QoS Identifiers extension (Ssqosid) introduces the
-`sqoscfg` register, which configures a hart with two identifiers: a Resource
+`srmcfg` register, which configures a hart with two identifiers: a Resource
 Control ID (`RCID`) and a Monitoring Counter ID (`MCID`). These identifiers
 accompany each request issued by the hart to shared resource controllers.
 
