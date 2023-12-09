@@ -41,8 +41,8 @@ The `RCID` and `MCID` configured in the `srmcfg` CSR apply to all privilege
 modes cite:[PRIV] of software execution on that hart. 
 
 If extension Smstateen is implemented together with Ssqosid, then Ssqosid also
-requires implementation of bit 55 in `mstateen0` introduced by Priv 1.14. If bit
-55 of `mstateen0` is 0, attempts to access `srmcfg` in privilege modes less
+requires the bit 55 in `mstateen0` introduced by Priv 1.14 to be implemented. If
+bit 55 of `mstateen0` is 0, attempts to access `srmcfg` in privilege modes less
 privileged than M-mode raise an illegal-instruction exception. If bit 55 of
 `mstateen0` is 1 or if extension Smstateen is not implemented, attempts to
 access `srmcfg` when `V=1` raise a virtual-instruction exception.
