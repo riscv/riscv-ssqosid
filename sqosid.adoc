@@ -66,6 +66,12 @@ The `RCID` and `MCID` in `srmcfg` apply across all privilege levels on the hart.
 Typically, higher-privilege modes don't modify `srmcfg`, as they often serve
 lower-privileged tasks. If differentiation is needed, higher privilege code can
 update `srmcfg` and restore it before returning to a lower privilege level.
+====
+
+<<<
+
+[NOTE]
+====
 
 In VM environments, hypervisors usually manage resource allocations, keeping
 the Guest OS out of QoS flows. If needed, the hypervisor can virtualize
