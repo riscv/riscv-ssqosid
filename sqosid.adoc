@@ -1,16 +1,31 @@
 [[chapter2]]
 == Quality-of-Service (QoS) Identifiers
 
-The `sqoscfg` register is a 32-bit read/write register to configure a
-Resource Control ID (`RCID`) and a Monitoring Counter ID (`MCID`). Both
-`RCID` and `MCID` are WARL fields. The CSR number is TBD.
+The `srmcfg` register is an SXLEN-bit read/write register used to configure a
+Resource Control ID (`RCID`) and a Monitoring Counter ID (`MCID`). Both `RCID`
+and `MCID` are WARL fields. The register is formatted as shown in <<SRMCFG64>>
+when SXLEN=64 and <<SRMCFG32>> when SXLEN=32. The CSR number is 0x180.
 
-The `RCID` and `MCID` accompany each request made by the hart to shared
-resource controllers. The `RCID` is used to determine the resource
-allocations (e.g., cache occupancy limits, memory bandwidth limits, etc.) to
-enforce. The `MCID` is used to identify a counter to monitor resource usage.
+The `RCID` and `MCID` accompany each request made by the hart to shared resource
+controllers. The `RCID` is used to determine the resource allocations
+(e.g., cache occupancy limits, memory bandwidth limits, etc.) to enforce. The
+`MCID` is used to identify a counter to monitor resource usage.
 
-.`sqoscfg` register for RV32 and RV64
+[[SRMCFG64]]
+.`srmcfg` register for RV64
+
+[wavedrom, , ]
+....
+{reg: [
+  {bits: 12, name: 'RCID'},
+  {bits:  4, name: 'WPRI'},
+  {bits: 12, name: 'MCID'},
+  {bits: 36, name: 'WPRI'},
+], config:{lanes: 2, hspace:1024}}
+....
+
+[[SRMCFG32]]
+.`srmcfg` register for RV32
 
 [wavedrom, , ]
 ....
@@ -22,8 +37,15 @@ enforce. The `MCID` is used to identify a counter to monitor resource usage.
 ], config:{lanes: 1, hspace:1024}}
 ....
 
-The `RCID` and `MCID` configured in the `sqoscfg` CSR apply to all privilege
+The `RCID` and `MCID` configured in the `srmcfg` CSR apply to all privilege
 modes cite:[PRIV] of software execution on that hart. 
+
+If extension Smstateen is implemented together with Ssqosid, then Ssqosid also
+requires the bit 55 in `mstateen0` introduced by Priv 1.14 to be implemented. If
+bit 55 of `mstateen0` is 0, attempts to access `srmcfg` in privilege modes less
+privileged than M-mode raise an illegal-instruction exception. If bit 55 of
+`mstateen0` is 1 or if extension Smstateen is not implemented, attempts to
+access `srmcfg` when `V=1` raise a virtual-instruction exception.
 
 [NOTE]
 ====
@@ -40,22 +62,28 @@ decisions on resource adjustment, associating a different `RCID` with a subset
 of members, or migrating members to other machines. The larger pool of MCIDs
 speeds up this analysis.
 
-The `RCID` and `MCID` in `sqoscfg` apply across all privilege levels on the hart.
-Typically, higher-privilege modes don't modify `sqoscfg`, as they often serve
+The `RCID` and `MCID` in `srmcfg` apply across all privilege levels on the hart.
+Typically, higher-privilege modes don't modify `srmcfg`, as they often serve
 lower-privileged tasks. If differentiation is needed, higher privilege code can
-update `sqoscfg` and restore it before returning to a lower privilege level.
+update `srmcfg` and restore it before returning to a lower privilege level.
+====
+
+<<<
+
+[NOTE]
+====
 
 In VM environments, hypervisors usually manage resource allocations, keeping
 the Guest OS out of QoS flows. If needed, the hypervisor can virtualize
-`sqoscfg` CSR for a VM using the virtual-instruction exceptions triggered upon
+`srmcfg` CSR for a VM using the virtual-instruction exceptions triggered upon
 Guest access. If the direct selection of `RCID` and `MCID` by the VM becomes
 common and emulation overhead is an issue, future extensions may allow VS-mode
 to use a selector for a hypervisor-configured set of CSRs holding `RCID` and
 `MCID` values designated for that Guest OS use.
 
-During context switches, the supervisor may choose to execute with the `sqoscfg`
+During context switches, the supervisor may choose to execute with the `srmcfg`
 of the outgoing context to attribute the execution to it. Prior to restoring
-the new context, it switches to the new VM's `sqoscfg`. The supervisor can also
+the new context, it switches to the new VM's `srmcfg`. The supervisor can also
 use a separate configuration for execution not to be attributed to either
 contexts.
 ====

@@ -1,6 +1,6 @@
 = RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
 
-The QoS Identifiers extension (Ssqosid) introduces the `sqoscfg` register, which configures
+The QoS Identifiers extension (Ssqosid) introduces the `srmcfg` register, which configures
 a hart with two identifiers: a Resource Control ID (`RCID`) and a Monitoring Counter ID (`MCID`).
 These identifiers accompany each request issued by the hart to shared resource controllers.
 
