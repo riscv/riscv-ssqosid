@@ -1,9 +1,9 @@
 [[header]]
 :description: RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
 :company: RISC-V.org
-:revdate: 12/2023
+:revdate: 1/2024
 :revnumber: 1.0
-:revremark: This document is in development. Assume everything can change. See http://riscv.org/spec-state for details.
+:revremark: This document is in Stable state. Assume anything could still change, but limited change should be expected. See http://riscv.org/spec-state for details.
 :url-riscv: http://riscv.org
 :doctype: book
 :preface-title: Preamble
@@ -41,11 +41,12 @@ Ved Shanbhogue
 
 // Preamble
 [WARNING]
-.This document is in the link:http://riscv.org/spec-state[Development state]
+.This document is in the link:http://riscv.org/spec-state[Stable state]
 ====
-Assume everything can change. This draft specification will change before
-being accepted as standard, so implementations made to this draft
-specification will likely not conform to the future standard.
+Assume anything could still change, but limited change should be expected.
+This draft specification will change before being accepted as standard, so
+implementations made to this draft specification will likely not conform to
+the future standard.
 ====
 
 [preface]
