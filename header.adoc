@@ -37,7 +37,6 @@ endif::[]
 :xrefstyle: short
 
 = RISC-V Quality-of-Service (QoS) Identifiers (Ssqosid)
-Ved Shanbhogue
 
 // Preamble
 [WARNING]
