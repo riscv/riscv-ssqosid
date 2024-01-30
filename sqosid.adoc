@@ -38,7 +38,8 @@ controllers. The `RCID` is used to determine the resource allocations
 ....
 
 The `RCID` and `MCID` configured in the `srmcfg` CSR apply to all privilege
-modes cite:[PRIV] of software execution on that hart. 
+modes cite:[PRIV] of software execution on that hart by default, but this
+behavior may be overridden by future extensions.
 
 If extension Smstateen is implemented together with Ssqosid, then Ssqosid also
 requires the bit 55 in `mstateen0` introduced by Priv 1.14 to be implemented. If
